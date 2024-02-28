@@ -250,6 +250,12 @@ def browse_excel():
                                  filetype=(("Excel", "*.xlsx"), ("Excel", "*.xls"))) 
     # Transmitem path-ul catre open_excel
     excel_obj = open_excel(path_to_excel)
+
+def browse_source_excel():
+    path_to_source_excel = askopenfilename(title="Select a File",\
+                                 filetype=(("Excel", "*.xlsx"), ("Excel", "*.xls")))
+    source_excel_obj = open_excel(path_to_source_excel)
+    read_excel(source_excel_obj)
     
     
 def preview():
@@ -461,7 +467,7 @@ browse_excel_with_emails_title_label = tk.Label(tab2, text = "Select an excel fi
 
 browse_excel_with_emails_label = tk.Label(tab2, text = "Excel file: ",font = fnt)
 browse_excel_with_emails_button = tk.Button(tab2, text = "browse", padx = 30, pady = 2,borderwidth = 5, font=fnt,\
-               command = browse_excel)
+               command = browse_source_excel)
 
 """************* Window layout **************"""
 
