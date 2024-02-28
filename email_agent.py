@@ -88,7 +88,7 @@ def open_excel(path_to_excel):
         t2 = time.time()
         print("Done in {t:.1f} sec.\n".format(t = t2-t1))
     except:
-        popup_msg("Unable to read excel file. \ Please close the program and try again")
+        popup_msg("Unable to read excel file. \n Please close the program and try again")
     # Then, return the excel_object
     return excel_obj
 
@@ -140,7 +140,7 @@ def read_excel(excel_obj):
     print(f"\n Exporting {len(emails)} emails... \n")
     # Call function export emails
     t1 = time.time()
-    export_emails(emails)
+    export_emails(path_to_source_excel, emails)
     t2 = time.time()
     print("\n Done, emails are updated! in {t:.1f} sec.".format(t = t2-t1))
     
@@ -252,6 +252,7 @@ def browse_excel():
     excel_obj = open_excel(path_to_excel)
 
 def browse_source_excel():
+    global path_to_source_excel
     path_to_source_excel = askopenfilename(title="Select a File",\
                                  filetype=(("Excel", "*.xlsx"), ("Excel", "*.xls")))
     source_excel_obj = open_excel(path_to_source_excel)
