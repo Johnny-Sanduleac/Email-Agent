@@ -9,7 +9,7 @@ Created on Sun Feb 11 20:41:01 2024
 # 1. GUI
 import tkinter as tk
 from tkinter.filedialog import askopenfilename
-from tkinter import ttk 
+from tkinter import ttk, scrolledtext, Menu
 
 # 2. Server communication
 import smtplib # libraria pentru trimitere e-mail
@@ -20,20 +20,79 @@ from email.mime.application import MIMEApplication # pentru attachment
 # 3. Other libs
 import openpyxl, re, os, time, winsound
 
-""" ************************** Back-END *****************************************"""
+
+""" ************************** Main Functions ******************************"""
+
+
+""" ************************** Back END  ***********************************"""
+
+""" ************************** Server communication ************************"""
+
+def connect_server(from_addr, password):
+    """ Functia care stabileste conexiunea cu serverul"""
+    global server
+    # Vom verifica ce fel de posta utilizeaza user-ul
+    tail = from_addr.split("@")[-1] # coada adresei (yahoo.com, gmail.com, mt.utm.md, mail.ru)
+    flag = None
+    if tail == "yahoo.com":
+        server_adress = 'smtp.mail.yahoo.com'; server_port = 465
+        flag = 1
+        
+    elif tail == "gmail.com":
+        server_adress = 'smtp.gmail.com'; server_port = 465
+        flag = 1
+    
+    elif tail == "mail.ru":
+        server_adress = 'smtp.mail.ru'; server_port = 465
+        flag = 1
+
+    else:
+        info_msg = "Your email is not available now, please contact the developper"
+        popup_msg(info_msg)
+        flag = 0
+        
+    server = None
+    if flag == 1: # Pentru alte servere de mail
+        try:
+            server = smtplib.SMTP_SSL(server_adress, server_port)
+        except:
+            popup_msg("Failed to connect server. Check your login or internet connection")
+        try:
+            server.ehlo() # Trimitem un fel de hello serverului, sa vedem daca raspunde
+        except:
+            popup_msg("Server not responding ")
+            quit
+        try:
+            server.starttls()
+        except:
+            popup_msg("Server not responding ")
+            quit
+    # Daca am reusit conexiunea cu serverul, atunci mergem mai departe
+    if server:
+        try:
+            server.login(from_addr, password) # Ne logam pe account-ul nostru
+            b2.configure(bg='light blue',font=fnt, text = "Connected...")
+            b4['state'] = 'normal'; b4['bg'] = 'yellow'
+            b5['state'] = 'normal'; b5['bg'] = 'green'
+        except:
+            popup_msg("Failed to login. Check your login and password")
+
 
 """ ************************** Email Extractor **********************************"""
-def open_excel():
-    global excel_path
-    # Get excel path
-    excel_path = os.path.abspath(askopenfilename(title="Select a File",\
-                                 filetype=(("Excel", "*.xlsx"), ("Excel", "*.xls"))))
-    # Read excel object
-    print("Reading excel file ...")
-    t1 = time.time()
-    excel_obj = openpyxl.load_workbook(excel_path,read_only=True)
-    t2 = time.time()
-    print("Done in {t:.1f} sec.\n".format(t = t2-t1))
+
+def open_excel(path_to_excel):
+    try:
+        print("Reading excel file ...")
+        t1 = time.time()
+        excel_obj = openpyxl.load_workbook(path_to_excel, read_only=True, data_only=True)
+        t2 = time.time()
+        print("Done in {t:.1f} sec.\n".format(t = t2-t1))
+    except:
+        popup_msg("Unable to read excel file. \ Please close the program and try again")
+    # Then, return the excel_object
+    return excel_obj
+
+def read_excel(excel_obj):
     # Extracting sheets from excel object
     sheets = excel_obj.worksheets
     # Extracting sheet names (only to be printed in console)
@@ -84,12 +143,12 @@ def open_excel():
     export_emails(emails)
     t2 = time.time()
     print("\n Done, emails are updated! in {t:.1f} sec.".format(t = t2-t1))
-
     
-def export_emails(emails):
+    
+def export_emails(path_to_excel, emails):
     # check if there exists an excel book for emails:
     # A little modification of path,in order to point to new exmails.xlsx document
-    dir_path = os.path.dirname(excel_path)
+    dir_path = os.path.dirname(path_to_excel)
     export_path = os.path.abspath(f"{dir_path}/emails.xlsx")
     if not os.path.isfile(export_path):
         # create a new workbook
@@ -138,8 +197,6 @@ def export_emails(emails):
 
 """ ************************** Email Sender **********************************"""
 
-attachment_path = None # N-am gasit o solutie mai buna decat sa fac variabila asta globala.
-# Altfel, in cazul cand userul nu apasa butonu sa ataseze ceva, variabila asta nu se defineste si in create_message_content da eroare
 def send_mail(from_addr, password, to_addr, msg):
     """Functia care expediaza e-mail de pe gmail"""
     server = smtplib.SMTP_SSL('smtp.gmail.com', 465) # Definim datele serverului
@@ -293,6 +350,26 @@ tabControl.grid(row = 0, column = 0)
 
 # Font specifications
 fnt = ("Arial", 12, "bold")
+
+# Menu
+menubar = Menu(root) # generam un obiect menubar in root
+filemenu = Menu(menubar, tearoff=0) # Definim obiectul pentru File
+filemenu.add_command(label="New", command=lambda: popup_msg('under process...')) # Adaugam comanda New
+filemenu.add_separator()
+filemenu.add_command(label = 'Exit', command = None)
+menubar.add_cascade(label="File", menu=filemenu) #In bara de meniuri includem obiectul filemenu
+
+editmenu = Menu(menubar, tearoff=0)
+editmenu.add_command(label="Delete", command=lambda: popup_msg('under process...'))
+menubar.add_cascade(label="Edit", menu=editmenu)
+
+helpmenu = Menu(menubar, tearoff=0)
+helpmenu.add_command(label="Update", command=None)
+helpmenu.add_command(label="About...", command=lambda: popup_msg('A simple application for extracting and sending emails'))
+menubar.add_cascade(label="Help", menu=helpmenu)
+
+root.config(menu = menubar) # Configuram root-ul ca sa stie ca in menu avem obiectul menubar
+
 
 # GUI elements definition, Email Sender
 l1 = tk.Label(tab1, text = "Excel file with email adresses   ",font = fnt)
