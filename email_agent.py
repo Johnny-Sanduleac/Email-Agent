@@ -294,7 +294,7 @@ def send_mail_to_recipients():
     """Functia pentru a expedia mesaje la fiecare email din excel"""
     recipient_emails = read_excel_with_emails(excel_obj)
     msg = format_message_content(sender_email_entry.get(), sender_email_entry.get(), subject_entry.get(), message_content_entry.get('1.0','end-1c'))
-    nr_of_emails_to_send = simpledialog.askinteger("Nr max de email-uri", f"Cate mesaje doriti sa expediati: (In total sunt {len(recipient_emails)}) ")
+    nr_of_emails_to_send = simpledialog.askinteger("Nr max de email-uri", f"Cate mesaje doriti sa expediati: \n (In total sunt {len(recipient_emails)} adrese email) ")
     
     for item in range(nr_of_emails_to_send):
         to_addr = recipient_emails[item]
