@@ -332,7 +332,7 @@ def exit_app():
 
 def check_for_updates():
     parent_path = os.path.abspath(os.path.join(sys.executable, os.pardir))
-    repo_path = os.path.abspath(os.path.join(parent_path,"MyScripts\\Email_Agent" ))
+    repo_path = os.path.abspath(os.path.join(parent_path,"MyScripts\\Email-Agent" ))
     repo = git.Repo(repo_path)
     repo.remotes.origin.fetch()
     diff = repo.git.diff('origin/main')
@@ -342,7 +342,7 @@ def check_for_updates():
         
 def update():
     parent_path = os.path.abspath(os.path.join(sys.executable, os.pardir))
-    repo_path = os.path.abspath(os.path.join(parent_path,"MyScripts\\Email_Agent" ))
+    repo_path = os.path.abspath(os.path.join(parent_path,"MyScripts\\Email-Agent" ))
     repo = git.Repo(repo_path)
     repo.git.reset('--hard','origin/main')
     origin = repo.remote(name='origin')
