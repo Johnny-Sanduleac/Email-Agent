@@ -9,7 +9,7 @@ Created on Sun Feb 11 20:41:01 2024
 # 1. GUI
 import tkinter as tk
 from tkinter.filedialog import askopenfilename
-from tkinter import ttk, scrolledtext, Menu
+from tkinter import ttk, scrolledtext, Menu, simpledialog
 
 # 2. Server communication
 import smtplib # libraria pentru trimitere e-mail
@@ -287,14 +287,15 @@ def send_mail_to_recipients():
     """Functia pentru a expedia mesaje la fiecare email din excel"""
     recipient_emails = read_excel_with_emails(excel_obj)
     msg = format_message_content(sender_email_entry.get(), sender_email_entry.get(), subject_entry.get(), message_content_entry.get('1.0','end-1c'))
-    for item in recipient_emails:
-        to_addr = item
+    nr_of_emails_to_send = simpledialog.askinteger("Nr max de email-uri", f"Cate mesaje doriti sa expediati: (In total sunt {len(recipient_emails)}) ")
+    
+    for item in range(nr_of_emails_to_send):
+        to_addr = recipient_emails[item]
         try:
-            to_addr = item
             server.sendmail(sender_email_entry.get(), to_addr, msg.as_string())
-            print(f"Successfully sent to {item}")
+            print(f"Successfully sent to {to_addr}")
         except:
-            print(f"Message not sent to {item}")
+            print(f"Message not sent to {to_addr}")
             pass
     popup_msg("Finished sending emails...")
 
@@ -363,7 +364,6 @@ root.geometry("850x600")
 
 # When start GUI, we'll check for updates
 check_for_updates()
-
 # Some global variables...
 attachment_path = None
 
